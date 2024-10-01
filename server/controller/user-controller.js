@@ -1,10 +1,10 @@
-import express from 'express';  // Import express to define the router
-import User from '../model/userSchema.js';  // Import the User model
+
+import User from '../model/userSchema.js';  
 
 
 
 
-const userLogIn = async (request, response) => {
+ export const userLogIn = async (request, response) => {
     try {
         const user = await User.findOne({ username: request.body.username });
 
@@ -35,7 +35,7 @@ export const userSignUp = async (request, response) => {
 
     
         const user = new User(request.body);
-        console.log(request.body);
+        console.log(user);
         await user.save();
 
        
@@ -46,6 +46,6 @@ export const userSignUp = async (request, response) => {
 };
 
 
-export default userLogIn;
 
- // Export the router
+
+

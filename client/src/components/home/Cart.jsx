@@ -1,24 +1,32 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, CircularProgress, Grid, CardMedia, Button, Paper, styled } from '@mui/material';
+import {
+    Box,
+    Typography,
+    CircularProgress,
+    Grid,
+    CardMedia,
+    Button,
+    Paper,
+    styled,
+} from '@mui/material';
+import { ThemeProvider } from '@mui/material/styles';
+import theme from '../../theme';
 
-// Styled components for Price Details
 const Header = styled(Box)`
-    padding: 15px 24px;
-    background: #fff;
+    padding: 15px 20px;
+    background: ${(props) => props.theme.palette.background.default};
     border-bottom: 1px solid #f0f0f0;
 `;
 
 const Heading = styled(Typography)`
-    color: #878787;
+    color: ${(props) => props.theme.palette.text.secondary};
 `;
 
 const Container = styled(Box)`
-    padding: 20px 15px;
-    background: #fff;
-    & > p {
-        margin-bottom: 20px;
-        font-size: 14px;
-    }
+    padding: 20px 10px; /* Reduced side padding */
+    background: ${(props) => props.theme.palette.background.default};
+    margin: 80px;
+    border-radius: 8px; /* Add border radius for better appearance */
 `;
 
 const Price = styled(Typography)`
@@ -33,9 +41,14 @@ const TotalAmount = styled(Typography)`
     border-bottom: 1px dashed #e0e0e0;
 `;
 
-const Discount = styled(Typography)`
-    font-size: 16px; 
-    color: green;
+
+const OrangeButton = styled(Button)`
+    background-color: #EB5B00;
+    padding:5px;
+    color: white; /* Optional: Change text color for better contrast */
+    &:hover {
+        background-color: orange; /* Optional: Darker shade on hover */
+    }
 `;
 
 const Cart = () => {
@@ -43,7 +56,6 @@ const Cart = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [price, setPrice] = useState(0);
-    const [discount, setDiscount] = useState(0);
 
     const fetchCartItems = async () => {
         try {
@@ -53,18 +65,16 @@ const Cart = () => {
             }
             const data = await response.json();
             const groupedItems = data.reduce((acc, item) => {
-                const existingItem = acc.find(i => i.id === item.id);
+                const existingItem = acc.find((i) => i.id === item.id);
                 if (existingItem) {
-                    existingItem.quantity += 1; // Increase quantity if the item exists
+                    existingItem.quantity += 1;
                 } else {
-                    acc.push({ ...item, quantity: 1 }); // Initialize quantity to 1 for new items
+                    acc.push({ ...item, quantity: 1 });
                 }
                 return acc;
             }, []);
-
             setCartItems(groupedItems);
         } catch (error) {
-            console.error('Error fetching cart items:', error.message);
             setError(error.message);
         } finally {
             setLoading(false);
@@ -78,45 +88,20 @@ const Cart = () => {
     useEffect(() => {
         const totalAmount = () => {
             let totalPrice = 0;
-            let totalDiscount = 0;
-
-            cartItems.forEach(item => {
-                totalPrice += item.price * item.quantity; // Calculate total price considering quantity
-                totalDiscount += (item.price - item.price.cost) * item.quantity; // Calculate total discount
+            cartItems.forEach((item) => {
+                totalPrice += item.price * item.quantity;
             });
-
             setPrice(totalPrice);
-            setDiscount(totalDiscount);
         };
-
-        totalAmount(); // Call the local function
+        totalAmount();
     }, [cartItems]);
 
     const handleDelete = async (itemId) => {
         try {
-            const response = await fetch(`http://localhost:8080/cart/${itemId}`, {
-                method: 'DELETE',
-            });
-            if (!response.ok) {
-                throw new Error('Failed to delete item.');
-            }
-            // Update cart state by decreasing the quantity
-            setCartItems((prevItems) => {
-                const updatedItems = prevItems.map(item => {
-                    if (item._id === itemId) {
-                        if (item.quantity > 1) {
-                            return { ...item, quantity: item.quantity - 1 }; // Decrease quantity by 1
-                        } else {
-                            return null; // Remove item if quantity is 1
-                        }
-                    }
-                    return item;
-                }).filter(Boolean); // Filter out null items
-
-                return updatedItems;
-            });
-            // Fetch the updated cart items after deleting
-            fetchCartItems();
+            await fetch(`http://localhost:8080/cart/${itemId}`, { method: 'DELETE' });
+            setCartItems((prevItems) =>
+                prevItems.filter((item) => item._id !== itemId)
+            );
         } catch (error) {
             console.error('Error deleting item:', error.message);
         }
@@ -124,26 +109,18 @@ const Cart = () => {
 
     const handleIncrease = (itemId) => {
         setCartItems((prevItems) =>
-            prevItems.map(item =>
-                item._id === itemId
-                    ? { ...item, quantity: item.quantity + 1 } // Increase quantity by 1
-                    : item
+            prevItems.map((item) =>
+                item._id === itemId ? { ...item, quantity: item.quantity + 1 } : item
             )
         );
     };
 
     const handleDecrease = (itemId) => {
         setCartItems((prevItems) =>
-            prevItems.map(item => {
-                if (item._id === itemId) {
-                    if (item.quantity > 1) {
-                        return { ...item, quantity: item.quantity - 1 }; // Decrease quantity by 1
-                    } else {
-                        return null; // Remove item if quantity is 1
-                    }
-                }
-                return item;
-            }).filter(Boolean) // Filter out null items
+            prevItems.map((item) =>
+                item._id === itemId && item.quantity > 1
+                    ? { ...item, quantity: item.quantity - 1 } : item
+            ).filter(Boolean)
         );
     };
 
@@ -172,106 +149,97 @@ const Cart = () => {
         );
     }
 
+    const deliveryCharges = 40; 
     return (
-        <Box sx={{ Width: 500, height:150, p: 3,  contain:fi}}>
-            <Typography variant="h5" gutterBottom>
-                Your Cart
-            </Typography>
-            <Grid container spacing={3}>
-                {cartItems.map((item) => (
-                    <Grid item xs={12} key={item._id}>
-                        <Paper elevation={3} sx={{ p: 2, borderRadius: 2, height: '250px', display: 'flex' }}>
-                            {/* Left side: Image (70% width) */}
-                            <Box sx={{ width: '70%', pr: 2 }}>
+        <ThemeProvider theme={theme}>
+            <Grid container spacing={3} sx={{ p: 3 }}>
+              
+                <Grid item xs={10} md={6} sx={{ marginLeft: '120px' }}>
+                    <Typography variant="h5" gutterBottom>
+                        Your Cart
+                    </Typography>
+                    {cartItems.map((item) => (
+                        <Paper elevation={3} sx={{ p: 2, mb: 2, borderRadius: 2, display: 'flex' }} key={item._id}>
+                            {/* Image Section */}
+                            <Box sx={{ width: '30%', pr: 2, marginLeft: '100px' }}>
                                 <CardMedia
                                     component="img"
                                     image={item.image || '/path/to/fallback-image.jpg'}
                                     alt={item.title || 'Product image'}
-                                    sx={{ height: '100%', objectFit: 'contain' }}
+                                    sx={{ height: '160px', width: "220px", objectFit: 'contain', }}
                                 />
                             </Box>
 
-                            {/* Right side: Product details (30% width) */}
-                            <Box sx={{ width: '30%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                            {/* Details Section */}
+                            <Box sx={{ width: '40%', display: 'flex', flexDirection: 'column', marginTop:'20px'}}>
                                 <Box>
                                     <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
                                         {item.title || 'Product Name'}
                                     </Typography>
-                                    <Typography variant="body2" color="textSecondary" sx={{ mb: 1 }}>
+                                    <Typography variant="body2" color="black" fontWeight={300}>
                                         Price: ₹{item.price * item.quantity}
                                     </Typography>
-                                    <Typography variant="body2" color="textSecondary" sx={{ mb: 1 }}>
-                                        Quantity: {item.quantity}
-                                    </Typography>
                                 </Box>
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                    <Button
-                                        variant="outlined"
-                                        color="primary"
-                                        onClick={() => handleDecrease(item._id)}
-                                        disabled={item.quantity <= 1}
-                                    >
+
+                                {/* Quantity and buttons section */}
+                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '150px', mt: 1, mb: 1 }}>
+                                    <Button variant="outlined" color="primary" onClick={() => handleDecrease(item._id)} disabled={item.quantity <= 1}>
                                         -
                                     </Button>
-                                    <Button
-                                        variant="outlined"
-                                        color="primary"
-                                        onClick={() => handleIncrease(item._id)}
-                                    >
+                                    <Typography variant="body2" sx={{ mx: 2 }}>{item.quantity}</Typography>
+                                    <Button variant="outlined" color="primary" onClick={() => handleIncrease(item._id)}>
                                         +
                                     </Button>
                                 </Box>
-                                <Box>
-                                    <Button
-                                        variant="contained"
-                                        color="primary"
-                                        fullWidth
-                                        sx={{ mt: 2 }}
-                                    >
-                                        Checkout
-                                    </Button>
-                                    <Button
+
+                                {/* Actions: Delete and Buy Now */}
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: "20px",color:"red" }}>
+                                    <OrangeButton
                                         variant="outlined"
-                                        color="error"
-                                        fullWidth
-                                        sx={{ mt: 1 }}
+                                        size="small"
                                         onClick={() => handleDelete(item._id)}
                                     >
                                         Delete
-                                    </Button>
+                                    </OrangeButton>
+                                    <Box sx={{ width: '100px', display: 'flex', justifyContent: 'left' }}>
+                                        <OrangeButton
+                                            variant="contained"
+                                            onClick={() => console.log('Buy now clicked')}
+                                        >
+                                            Buy Now
+                                        </OrangeButton>
+                                    </Box>
                                 </Box>
                             </Box>
                         </Paper>
-                    </Grid>
-                ))}
-            </Grid>
+                    ))}
+                </Grid>
 
-            {/* Price Details Section */}
-            <Header>
-                <Heading>PRICE DETAILS</Heading>
-            </Header>
-            <Container>
-                <Typography>
-                    Price ({cartItems.length} items)
-                    <Price component="span">₹{price}</Price>
-                </Typography>
-                <Typography>
-                    Discount
-                    <Price component="span">-₹{discount}</Price>
-                </Typography>
-                <Typography>
-                    Delivery Charges
-                    <Price component="span">₹40</Price>
-                </Typography>
-                <TotalAmount>
-                    Total Amount
-                    <Price>₹{price - discount + 40}</Price>
-                </TotalAmount>
-                <Discount>
-                    You will save ₹{discount} on this order
-                </Discount>
-            </Container>
-        </Box>
+                {/* Right Side: Price Details */}
+                <Grid item xs={12} md={4} sx={{ flex: 1.15,marginTop:'55px' }}> {/* Increase size by 15% */}
+                    <Header>
+                        <Heading sx={{color:"black",fontSize:"200",alignContent:"center"}}>PRICE DETAILS</Heading>
+                    </Header>
+                    <Container>
+                        <Typography>
+                            Price ({cartItems.length} items)
+                            <Price component="span">₹{price}</Price>
+                        </Typography>
+                        <Typography>
+                            Delivery Charges
+                            <Price component="span">₹{deliveryCharges}</Price>
+                        </Typography>
+                        <TotalAmount>
+                            Total Amount
+                            <Price component="span">₹{price + deliveryCharges}</Price>
+                        </TotalAmount>
+                        <OrangeButton variant="contained" fullWidth>
+                            Proceed to Checkout
+                        </OrangeButton>
+                    </Container>
+                </Grid>
+            </Grid>
+        </ThemeProvider>
     );
 };
 

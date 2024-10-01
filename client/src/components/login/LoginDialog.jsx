@@ -10,7 +10,6 @@ const Component = styled(DialogContent)`
     padding-top: 0;
 `;
 
-
 const LoginButton = styled(Button)`
     text-transform: none;
     background: #FB641B;
@@ -39,8 +38,8 @@ const CreateAccount = styled(Typography)`
     color: #2874f0;
     font-weight: 600;
     font-size: 14px;
-    cursor: pointer
-`
+    cursor: pointer;
+`;
 
 const Wrapper = styled(Box)`
     padding: 25px 35px;
@@ -59,9 +58,8 @@ const Error = styled(Typography)`
     line-height: 0;
     margin-top: 10px;
     font-weight: 600;
-`
-// height: 70vh;
-    
+`;
+
 const Image = styled(Box)`
     background: #2874f0 url(https://static-assets-web.flixcart.com/www/linchpin/fk-cp-zion/img/login_img_c4a81e.png) center 85% no-repeat;
     width: 30%;
@@ -69,11 +67,9 @@ const Image = styled(Box)`
     padding: 45px 35px;
     & > p, & > h5 {
         color: #FFFFFF;
-        font-weight: 600
+        font-weight: 600;
     }
 `;
-
-
 
 const loginInitialValues = {
     username: '',
@@ -107,8 +103,6 @@ const LoginDialog = ({ open, setOpen }) => {
     const [signup, setSignup] = useState(signupInitialValues);
     const [error, showError] = useState(false);
     const { setAccount } = useContext(DataContext);
-
-  
     const [currentAccountView, setCurrentAccountView] = useState(accountInitialValues.login);
 
     useEffect(() => {
@@ -121,24 +115,35 @@ const LoginDialog = ({ open, setOpen }) => {
 
     const onInputChange = (e) => {
         setSignup({ ...signup, [e.target.name]: e.target.value });
-        console.log(signup);
     };
-    const loginUser = async() => {
-        let response = await authenticateLogin(login);
-        if(!response) 
+
+    const loginUser = async () => {
+        try {
+            let response = await authenticateLogin(login);
+            if (!response) {
+                showError(true);
+            } else {
+                showError(false);
+                handleClose();
+                setAccount(login.username);
+            }
+        } catch (error) {
             showError(true);
-        else {
-            showError(false);
-            handleClose();
-            setAccount(login.username);
         }
-    }
+    };
 
     const signupUser = async () => {
-        let response = await authenticateSignup(signup);
-        if (!response) return;
-        handleClose();
-        setAccount(signup.firstname);
+        try {
+            let response = await authenticateSignup(signup);
+            if (!response) {
+                showError(true);
+                return;
+            }
+            handleClose();
+            setAccount(signup.firstname);
+        } catch (error) {
+            showError(true);
+        }
     };
 
     const toggleAccount = (accountView) => {
@@ -158,30 +163,28 @@ const LoginDialog = ({ open, setOpen }) => {
                         <Typography variant="h5">{currentAccountView.heading}</Typography>
                         <Typography style={{ marginTop: 10 }}>{currentAccountView.subHeading}</Typography>
                     </Image>
-                    {
-                        currentAccountView.view === 'login' ? (
-                            <Wrapper>
-                                <TextField variant="standard" onChange={(e) => onValueChange(e)} name="username" label="Enter UserName " />
-                                {error && <Error>Please enter valid UserName Number</Error>}
-                                <TextField variant="standard" onChange={(e) => onValueChange(e)} name="password" label="Enter Password" type="password" />
-                                <Typography>By continuing, you agree to Flipkart's Terms of Use and Privacy Policy.</Typography>
-                                <LoginButton onClick={loginUser}>Login</LoginButton>
-                                <Text style={{ textAlign: 'center' }}>OR</Text>
-                                <RequestOTP>Request OTP</RequestOTP>
-                                <CreateAccount onClick={() => toggleAccount(accountInitialValues.signup)}>New to Flipkart? Create an account</CreateAccount>
-                            </Wrapper>
-                        ) : (
-                            <Wrapper>
-                                <TextField variant="standard" onChange={(e) => onInputChange(e)} name='firstname' label='Enter Firstname' />
-                                <TextField variant="standard" onChange={(e) => onInputChange(e)} name='lastname' label='Enter Lastname' />
-                                <TextField variant="standard" onChange={(e) => onInputChange(e)} name='username' label='Enter Username' />
-                                <TextField variant="standard" onChange={(e) => onInputChange(e)} name='email' label='Enter Email' />
-                                <TextField variant="standard" onChange={(e) => onInputChange(e)} name='password' label='Enter Password' />
-                                <TextField variant="standard" onChange={(e) => onInputChange(e)} name='phone' label='Enter Phone' />
-                                <LoginButton onClick={() => signupUser()}>Continue</LoginButton>
-                            </Wrapper>
-                        )
-                    }
+                    {currentAccountView.view === 'login' ? (
+                        <Wrapper>
+                            <TextField variant="standard" onChange={onValueChange} name="username" label="Enter Username" />
+                            {error && <Error>Invalid Username or Password</Error>}
+                            <TextField variant="standard" onChange={onValueChange} name="password" label="Enter Password" type="password" />
+                            <Typography>By continuing, you agree to Flipkart's Terms of Use and Privacy Policy.</Typography>
+                            <LoginButton onClick={loginUser}>Login</LoginButton>
+                            <Text style={{ textAlign: 'center' }}>OR</Text>
+                            <RequestOTP>Request OTP</RequestOTP>
+                            <CreateAccount onClick={() => toggleAccount(accountInitialValues.signup)}>New to Flipkart? Create an account</CreateAccount>
+                        </Wrapper>
+                    ) : (
+                        <Wrapper>
+                            <TextField variant="standard" onChange={onInputChange} name="firstname" label="Enter Firstname" />
+                            <TextField variant="standard" onChange={onInputChange} name="lastname" label="Enter Lastname" />
+                            <TextField variant="standard" onChange={onInputChange} name="username" label="Enter Username" />
+                            <TextField variant="standard" onChange={onInputChange} name="email" label="Enter Email" />
+                            <TextField variant="standard" onChange={onInputChange} name="password" label="Enter Password" type="password" />
+                            <TextField variant="standard" onChange={onInputChange} name="phone" label="Enter Phone" />
+                            <LoginButton onClick={signupUser}>Continue</LoginButton>
+                        </Wrapper>
+                    )}
                 </Box>
             </Component>
         </Dialog>

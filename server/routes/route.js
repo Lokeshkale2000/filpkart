@@ -1,6 +1,6 @@
 import express from "express";
-import userSignUp from "../controller/user-controller.js";
-import userLogIn from "../controller/user-controller.js";
+import {userSignUp, userLogIn } from "../controller/user-controller.js";
+
 import {
   getAllProducts,
   getProductById,

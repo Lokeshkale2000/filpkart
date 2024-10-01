@@ -3,24 +3,22 @@ import Product from '../model/productSchema.js';
 
 
 
-export const insertDefaultData = async (req, res) => {
+export const insertDefaultData = async () => {
     try {
-        const existingProducts = await Product.find({ id: { $in: products.map(product => product.id) } });
-    
-        const existingProductIds = existingProducts.map(product => product.id);
-        const newProducts = products.filter(product => !existingProductIds.includes(product.id));
-       
-        if (newProducts.length > 0) {
-            await Product.insertMany(newProducts);
-           
-        }
-        
-       res.status(201).json({ message: "Default data inserted successfully" });
+      // Assuming you have a Product model
+      const existingProducts = await Product.find();
+      
+      if (existingProducts.length === 0) {
+        await Product.insertMany(productData);
+        console.log('Default data inserted successfully');
+      } else {
+        console.log('Data already exists');
+      }
     } catch (error) {
-        res.status(500).json({ message: 'Error while inserting default data', error: error.message });
+      console.error('Error while inserting default data:', error.message);
+      throw error; // Re-throw the error if you want to handle it in the calling function
     }
-};
-
+  };
 
 export const getAllProducts = async (req, res) => {
     console.log("this api het",)
