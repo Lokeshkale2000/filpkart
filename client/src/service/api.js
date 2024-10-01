@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const url = 'http://localhost:8080';
+const url = 'https://filpkart-qn9r.vercel.app/';
 export const authenticateLogin = async (user) => {
     try {
         return await axios.post(`${url}/login`, user);

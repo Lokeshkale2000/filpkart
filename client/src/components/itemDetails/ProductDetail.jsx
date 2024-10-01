@@ -43,7 +43,7 @@ const ProductDetail = () => {
                 quantity: 1, // Default quantity
             };
 
-            const response = await fetch('http://localhost:8080/cart', {
+            const response = await fetch('https://filpkart-qn9r.vercel.app/cart', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
