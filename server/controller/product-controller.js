@@ -5,7 +5,7 @@ import Product from '../model/productSchema.js';
 
 export const insertDefaultData = async () => {
     try {
-      // Assuming you have a Product model
+     
       const existingProducts = await Product.find();
       
       if (existingProducts.length === 0) {
@@ -16,7 +16,7 @@ export const insertDefaultData = async () => {
       }
     } catch (error) {
       console.error('Error while inserting default data:', error.message);
-      throw error; // Re-throw the error if you want to handle it in the calling function
+      throw error; 
     }
   };
 

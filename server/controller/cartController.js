@@ -25,10 +25,10 @@ export const getCartItems = async (req, res) => {
 };
  
  export const deleteCartItem = async (req, res) => {
-     const { id } = req.params; // Get the product id from the request parameters
+     const { id } = req.params; 
  
      try {
-         // Find the cart item by its _id
+       
          const deletedItem = await Cart.findByIdAndDelete(id);
  
          if (!deletedItem) {

@@ -8,7 +8,7 @@ import { useState, useContext } from "react";
 
 import { DataContext } from "../../context/DataProvider";
 import Profile from "./Profile";
-//import { useSelector } from 'react-redux';
+
 
 const Container = styled(Link)(({ theme }) => ({
   display: "flex",

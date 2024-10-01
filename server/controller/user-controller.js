@@ -17,7 +17,7 @@ import User from '../model/userSchema.js';
             return response.status(401).json({ message: 'Invalid username or password' });
         }
 
-        // Successful login
+     
         return response.status(200).json({ message: `${user.username} logged in successfully` });
     } catch (error) {
         return response.status(500).json({ message: 'Error logging in', error: error.message });
