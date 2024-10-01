@@ -1,24 +1,52 @@
+import products from "../constants/data.js"; 
 import Product from '../model/productSchema.js';
-import  products  from '../constants/data.js'; // Import your default products
 
-// Function to get all products
-export const getProducts = async (request, response) => {
+
+
+export const insertDefaultData = async (req, res) => {
+    try {
+        const existingProducts = await Product.find({ id: { $in: products.map(product => product.id) } });
+    
+        const existingProductIds = existingProducts.map(product => product.id);
+        const newProducts = products.filter(product => !existingProductIds.includes(product.id));
+       
+        if (newProducts.length > 0) {
+            await Product.insertMany(newProducts);
+           
+        }
+        
+       res.status(201).json({ message: "Default data inserted successfully" });
+    } catch (error) {
+        res.status(500).json({ message: 'Error while inserting default data', error: error.message });
+    }
+};
+
+
+export const getAllProducts = async (req, res) => {
+    console.log("this api het",)
     try {
         const allProducts = await Product.find();
-        response.status(200).json(allProducts);
+        
+        res.status(200).json(allProducts);
     } catch (error) {
-        response.status(500).json({ message: error.message });
+        res.status(500).json({ message: 'Error fetching products', error: error.message });
     }
 };
 
-// Function to insert default products
-export const createDefaultProducts = async (request, response) => {
+
+export const getProductById = async (req, res) => {
+    const { id } = req.params; 
+    console.log("Product ID from request:", id);
     try {
-        await Product.deleteMany({}); // Optional: Clear existing data
-        await Product.insertMany(products); 
-        console,log(Product)// Insert default products
-        response.status(201).json({ message: 'Default products inserted successfully' });
+        const product = await Product.findById(id);
+        if (!product) {
+            return res.status(404).json({ message: 'Product not found' });
+        }
+        res.status(200).json(product);
     } catch (error) {
-        response.status(500).json({ message: error.message });
+        res.status(500).json({ message: 'Error fetching product', error: error.message });
     }
 };
+
+
+  

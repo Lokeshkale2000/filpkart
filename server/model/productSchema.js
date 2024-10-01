@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 const productSchema = new mongoose.Schema({
-    id: { type: String, required: true },  // Change Number to String
+    id: { type: String, required: true },  
     url: { type: String, required: true },
     detailUrl: { type: String, required: true },
     title: {

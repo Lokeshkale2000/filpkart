@@ -1,5 +1,8 @@
 import React from 'react';
-import { Grid, styled } from '@mui/material'; // Import Grid from @mui/material
+import { Grid, styled } from '@mui/material'; 
+import Slid from "./Slid";
+
+// Import Grid from @mui/material
 
 const ImageURL = [
     'https://rukminim1.flixcart.com/flap/960/960/image/2f30db9425df5cec.jpg?q=50',
@@ -29,6 +32,7 @@ const MidSection = () => {
 
     return (
         <>
+        
             <Wrapper container>
                 {
                     ImageURL.map((image) => (
@@ -37,7 +41,10 @@ const MidSection = () => {
                         </Grid>
                     ))
                 }
+                
             </Wrapper>
+            <Slid></Slid>
+            <Slid></Slid>
             <Image src={url} alt="Mid section banner" />
         </>
     );

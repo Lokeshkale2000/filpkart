@@ -4,9 +4,9 @@ import Banner from "./Banner";
 import { Box,styled } from "@mui/material";
 import MidSection from "./MidSection";
 //import MidSlide from "./MidSlider";
-import {useEffect} from 'react';
-import {getProducts} from "../../redux/actions/productActions";
-import {useDispatch,useSelector} from  'react-redux';
+
+import Slid from "./Slid";
+
 
 
 
@@ -17,15 +17,7 @@ const Home = () => {
 
   
   
-  const  {products}=useSelector(state=>state.getProducts)
-  console.log(products);
-  const dispatch = useDispatch();
-
-  useEffect(()=>{
- 
-    dispatch(getProducts())
-
-  },[dispatch])
+  
   return (
     <Fragment>
       <Navbar></Navbar>
@@ -34,10 +26,12 @@ const Home = () => {
         <Banner></Banner>
         
       </Components>
-      <Box> <MidSection></MidSection></Box>
+      <Slid></Slid>
      
-     
+     <MidSection></MidSection>
+    
     </Fragment>
+  
   );
 };
 
