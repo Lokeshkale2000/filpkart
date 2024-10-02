@@ -11,7 +11,7 @@ const ProductDetail = () => {
 
     const fetchProduct = useCallback(async () => {
         try {
-            const response = await fetch(`http://localhost:8080/product/${id}`);
+            const response = await fetch(`https://filpkart-qn9r.vercel.app/product/${id}`);
             if (!response.ok) {
                 if (response.status === 404) {
                     throw new Error('Product not found.');
